@@ -1,0 +1,9 @@
+.idea/
+.vs/
+.vscode/
+*.user
+bin/
+obj/
+.git/
+Properties/
+appsettings.*
