@@ -25,6 +25,8 @@ namespace Host.Extensions
             };
             credential.PasswordHash = PasswordExtensions.HashPassword("jerboa666", credential.Salt);
             context.Credentials.Add(credential);
+
+            context.SaveChanges();
         }
     }
 }
