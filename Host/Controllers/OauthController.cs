@@ -56,6 +56,8 @@ namespace Host.Controllers
                 UserId = user.Id
             });
 
+            _context.SaveChanges();
+
             return new PostTokenResponse
             {
                 Id = user.Id,
