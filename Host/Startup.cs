@@ -1,5 +1,6 @@
 ﻿using Host.Database;
 using Host.Extensions;
+using Host.MvcFilters;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,7 @@ namespace Host
             services.AddDbContext<Context>((provider, builder) =>
                 builder.UseInMemoryDatabase(nameof(Context)));
             
-            services.AddMvcCore()
+            services.AddMvcCore(options => options.Filters.Add(typeof(BadRequestGlobalFilter)))
                 .AddCors(options =>
                 {
                     options.AddPolicy(EnvironmentName.Development, policy =>
