@@ -9,6 +9,9 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="MlkPwgen">
+          <Version>0.3.0</Version>
+        </PackageReference>
     </ItemGroup>
 
 </Project>
