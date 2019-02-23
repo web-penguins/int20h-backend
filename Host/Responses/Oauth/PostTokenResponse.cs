@@ -9,5 +9,9 @@ namespace Host.Responses.Oauth
         public string Name { get; set; }
         
         public int Id { get; set; }
+        
+        public int TotalAmountOfProducts { get; set; }
+        
+        public string RegisterDate { get; set; }
     }
 }

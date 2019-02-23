@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Host.Database;
 using Host.Models;
@@ -15,7 +16,9 @@ namespace Host.Extensions
             {
                 Id = 1,
                 Name = "Viacheslav Zhuravskyi",
-                Username = "lundibundi"
+                Username = "lundibundi",
+                RegisterDate = DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss"),
+                TotalAmountOfProducts = 0
             });
             
             var credential = new Credential

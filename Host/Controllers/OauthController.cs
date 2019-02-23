@@ -63,7 +63,9 @@ namespace Host.Controllers
                 Id = user.Id,
                 Name = user.Name,
                 Username = user.Username,
-                Token = token
+                Token = token,
+                RegisterDate = user.RegisterDate,
+                TotalAmountOfProducts = user.TotalAmountOfProducts
             };
         }
     }
