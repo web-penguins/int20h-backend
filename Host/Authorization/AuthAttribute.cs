@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Host.Authorization
 {
-    public sealed class AuthAttribute : Attribute, IActionFilter
+    public sealed class AuthAttribute : Attribute, IAuthorizationFilter
     {
-        public void OnActionExecuting(ActionExecutingContext context)
+        public void OnAuthorization(AuthorizationFilterContext context)
         {
             if (!(context.HttpContext.RequestServices
                 .GetService(typeof(ILogger<AuthAttribute>)) is ILogger<AuthAttribute> logger))
@@ -39,10 +39,6 @@ namespace Host.Authorization
                 context.Result = new StatusCodeResult(403);
             }
             else logger.LogDebug("Authorized successfully, user id: {0}", session.UserId);
-        }
-
-        public void OnActionExecuted(ActionExecutedContext context)
-        {
         }
     }
 }
