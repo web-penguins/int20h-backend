@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 
-namespace Host.Authorization
+namespace Host.MvcFilters
 {
     public sealed class AuthAttribute : Attribute, IAuthorizationFilter
     {
