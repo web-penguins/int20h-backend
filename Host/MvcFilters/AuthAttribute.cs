@@ -7,9 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Host.MvcFilters
 {
-    public sealed class AuthAttribute : Attribute, IAuthorizationFilter
+    public sealed class AuthAttribute : Attribute, IActionFilter
     {
-        public void OnAuthorization(AuthorizationFilterContext context)
+        public void OnActionExecuting(ActionExecutingContext context)
         {
             if (!(context.HttpContext.RequestServices
                 .GetService(typeof(ILogger<AuthAttribute>)) is ILogger<AuthAttribute> logger))
@@ -38,7 +38,15 @@ namespace Host.MvcFilters
                 logger.LogDebug("Access denied");
                 context.Result = new StatusCodeResult(403);
             }
-            else logger.LogDebug("Authorized successfully, user id: {0}", session.UserId);
+            else
+            {
+                logger.LogDebug("Authorized successfully, user id: {0}", session.UserId);
+                context.ActionArguments["userId"] = session.UserId;
+            }
+        }
+
+        public void OnActionExecuted(ActionExecutedContext context)
+        {
         }
     }
 }
