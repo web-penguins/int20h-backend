@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Host.Database;
+using Host.Extensions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 
@@ -10,6 +13,9 @@ namespace Host
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<Context>((provider, builder) =>
+                builder.UseInMemoryDatabase(nameof(Context)).UseInternalServiceProvider(provider));
+            
             services.AddMvcCore()
                 .AddCors(options =>
                 {
@@ -23,9 +29,11 @@ namespace Host
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, Context context)
         {
-            app.UseMvc();
+            context.AddDefaultData();
+            
+            app.UseCors(env.IsDevelopment() ? EnvironmentName.Development : EnvironmentName.Production).UseMvc();
         }
     }
 }
