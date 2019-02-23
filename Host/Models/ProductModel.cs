@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Host.Models
 {
-    public sealed class Product
+    public sealed class ProductModel
     {
         [Key] public int ProductId { get; set; }
         public int UserId { get; set; }
