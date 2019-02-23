@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Host.Controllers
 {
     [Route("oauth")]
-    public sealed class OauthController
+    public sealed class OauthController : ControllerBase
     {
         private readonly Context _context;
         private readonly ILogger<OauthController> _logger;
