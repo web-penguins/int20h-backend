@@ -14,7 +14,7 @@ namespace Host
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<Context>((provider, builder) =>
-                builder.UseInMemoryDatabase(nameof(Context)).UseInternalServiceProvider(provider));
+                builder.UseInMemoryDatabase(nameof(Context)));
             
             services.AddMvcCore()
                 .AddCors(options =>
