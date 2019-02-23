@@ -25,10 +25,10 @@ namespace Host.Controllers
         [HttpPost("token")]
         public ActionResult<PostTokenResponse> PostToken([FromBody] PostTokenModel model)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Username == model.Username);
+            var user = _context.Users.FirstOrDefault(u => u.Username == model.Login);
             if (user == null)
             {
-                _logger.LogDebug("User {0} was not found", model.Username);
+                _logger.LogDebug("User {0} was not found", model.Login);
                 return NotFound();
             }
 
