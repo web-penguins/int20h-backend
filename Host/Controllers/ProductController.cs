@@ -1,14 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Host.Database;
 using Host.Models;
-using Host.Models.Product;
 using Host.MvcFilters;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Host.Controllers
 {
@@ -34,19 +37,58 @@ namespace Host.Controllers
 
         [HttpPost("create")]
         [Auth]
-        public async Task<ActionResult<ProductModel>> CreateProduct([FromBody] CreateProductModel model, int userId)
+        public async Task<ActionResult<ProductModel>> CreateProduct(List<IFormFile> files,
+            [FromHeader(Name = "Metadata")] string metadata, int userId)
         {
             _logger.LogInformation("Create product requested");
+
+            dynamic metadataJson = JsonConvert.DeserializeObject(metadata, new JsonSerializerSettings
+            {
+                Error = (_, e) =>
+                {
+                    _logger.LogError(e.ErrorContext.Error, "Error occurred while working with json-based metadata");
+                    ModelState.TryAddModelException("metadata", e.ErrorContext.Error);
+                },
+                ContractResolver = new CamelCasePropertyNamesContractResolver()
+            });
+            
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            
+            string name = metadataJson.name, description = metadataJson.description;
+            List<Input> inputs = metadataJson.inputs;
+            List<Output> outputs = metadataJson.outputs;
+
+            if (name == null || description == null || inputs == null || outputs == null)
+            {
+                ModelState.TryAddModelError("metadata", "Either name or description or inputs or outputs == null");
+                return BadRequest(ModelState);
+            }
+
             var product = new ProductModel
             {
-                Name = model.Name,
-                Description = model.Description,
-                Inputs = model.Inputs,
+                Name = name,
+                Description = description,
+                Inputs = inputs,
                 UserId = userId,
-                Outputs = model.Outputs,
+                Outputs = outputs,
                 ProductId = Convert.ToInt32(_context.Products.CountDocuments(FilterDefinition<ProductModel>.Empty)) + 1
             };
             await _context.Products.InsertOneAsync(product);
+
+            var directoryBasePath = Path.Combine(Directory.GetCurrentDirectory(), product.ProductId.ToString());
+            if (!Directory.Exists(directoryBasePath))
+                Directory.CreateDirectory(directoryBasePath);
+
+            foreach (var file in files)
+            {
+                using (var fs = new FileStream(
+                    Path.Combine(directoryBasePath, file.FileName),
+                    FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    await file.CopyToAsync(fs);
+                }
+            }
             
             return product;
         }
