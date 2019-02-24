@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Host.Database;
 using Host.Models;
@@ -26,6 +27,7 @@ namespace Host.Controllers
         [Auth]
         public async Task<ActionResult<List<ProductModel>>> ListProducts()
         {
+            _logger.LogInformation("List products requested");
             return await _context.Products.Find(FilterDefinition<ProductModel>.Empty).ToListAsync();
         }
 
@@ -33,6 +35,7 @@ namespace Host.Controllers
         [Auth]
         public async Task<ActionResult<ProductModel>> CreateProduct([FromBody] CreateProductModel model, int userId)
         {
+            _logger.LogInformation("Create product requested");
             var product = new ProductModel
             {
                 Name = model.Name,
@@ -51,8 +54,27 @@ namespace Host.Controllers
         {
             await _context.Products.UpdateOneAsync(p => p.ProductId == model.ProductId,
                 Builders<ProductModel>.Update.Inc(p => p.ExecutedTimes, 1));
+
+            var request = WebRequest.CreateHttp($"http://localhost:23000/keras/{model.ProductId}");
+            request.ContentType = "multipart/form-data";
+
+            using (var input = await request.GetRequestStreamAsync())
+            {
+                // await input.WriteAsync(Encoding.UTF8.GetBytes(""));
+                // TODO write an image to the request stream
+            }
+
+            if (!(await request.GetResponseAsync() is HttpWebResponse response))
+            {
+                _logger.LogError("response is null");
+                return StatusCode(500);
+            }
             
-            // TODO execute product
+            if (response.StatusCode != HttpStatusCode.OK)
+            {
+                _logger.LogError("response's status code equals to {0}", response.StatusCode);
+                return StatusCode(500);
+            }
             
             return Ok();
         }
