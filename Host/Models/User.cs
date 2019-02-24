@@ -1,3 +1,5 @@
+using MongoDB.Bson.Serialization.Attributes;
+
 namespace Host.Models
 {
     public sealed class User
@@ -10,6 +12,6 @@ namespace Host.Models
         
         public string RegisterDate { get; set; }
         
-        public int TotalAmountOfProducts { get; set; }
+        [BsonIgnoreIfDefault] public int TotalAmountOfProducts { get; set; }
     }
 }
