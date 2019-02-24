@@ -1,4 +1,4 @@
-using System.Linq;
+using System.Threading.Tasks;
 using Host.Database;
 using Host.Extensions;
 using Host.Models;
@@ -7,6 +7,7 @@ using Host.Responses.Oauth;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MlkPwgen;
+using MongoDB.Driver;
 
 namespace Host.Controllers
 {
@@ -23,17 +24,17 @@ namespace Host.Controllers
         }
 
         [HttpPost("token")]
-        public ActionResult<PostTokenResponse> PostToken([FromBody] PostTokenModel model)
+        public async Task<ActionResult<PostTokenResponse>> PostToken([FromBody] PostTokenModel model)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Username == model.Login);
-            if (user == null)
+            var user = await _context.Users.Find(u => u.Username == model.Login).SingleOrDefaultAsync();
+            if (user == default)
             {
                 _logger.LogDebug("User {0} was not found", model.Login);
                 return NotFound();
             }
 
-            var credential = _context.Credentials.Find(user.Id);
-            if (credential == null)
+            var credential = await _context.Credentials.Find(c => c.Id == user.Id).SingleAsync();
+            if (credential == default)
             {
                 _logger.LogError("Credential for user {0} was not found", user.Id);
                 return StatusCode(500);
@@ -49,14 +50,13 @@ namespace Host.Controllers
             do
             {
                 token = PasswordGenerator.Generate(100);
-            } while (_context.Sessions.Find(token) != null);
-            _context.Sessions.Add(new Session
+            } while (await _context.Sessions.Find(token).AnyAsync());
+            
+            await _context.Sessions.InsertOneAsync(new Session
             {
                 Token = token,
                 UserId = user.Id
             });
-
-            _context.SaveChanges();
 
             return new PostTokenResponse
             {

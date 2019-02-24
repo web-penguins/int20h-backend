@@ -1,8 +1,8 @@
 using System;
-using System.Linq;
 using Host.Database;
 using Host.Models;
 using MlkPwgen;
+using MongoDB.Driver;
 
 namespace Host.Extensions
 {
@@ -10,9 +10,9 @@ namespace Host.Extensions
     {
         public static void AddDefaultData(this Context context)
         {
-            if (context.Users.Any()) return;
+            if (context.Users.Find(FilterDefinition<User>.Empty).Any()) return;
             
-            context.Users.Add(new User
+            context.Users.InsertOne(new User
             {
                 Id = 1,
                 Name = "Viacheslav Zhuravskyi",
@@ -27,9 +27,7 @@ namespace Host.Extensions
                 Salt = PasswordGenerator.Generate(4)
             };
             credential.PasswordHash = PasswordExtensions.HashPassword("jerboa666", credential.Salt);
-            context.Credentials.Add(credential);
-
-            context.SaveChanges();
+            context.Credentials.InsertOne(credential);
         }
     }
 }

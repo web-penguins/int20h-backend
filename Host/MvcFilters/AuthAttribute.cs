@@ -4,6 +4,7 @@ using Host.Database;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 
 namespace Host.MvcFilters
 {
@@ -32,8 +33,8 @@ namespace Host.MvcFilters
                 return;
             }
 
-            var session = dbContext.Sessions.FirstOrDefault(s => s.Token == token);
-            if (session == null)
+            var session = dbContext.Sessions.Find(s => s.Token == token).SingleOrDefault();
+            if (session == default)
             {
                 logger.LogDebug("Access denied");
                 context.Result = new StatusCodeResult(403);

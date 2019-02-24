@@ -1,22 +1,24 @@
 using Host.Models;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace Host.Database
 {
     public sealed class Context : DbContext
     {
-        public Context(DbContextOptions options) : base(options) { }
-        
-        public DbSet<User> Users { get; set; }
-        public DbSet<Session> Sessions { get; set; }
-        public DbSet<Credential> Credentials { get; set; }
-        public DbSet<ProductModel> Products { get; set; }
+        public readonly IMongoCollection<ProductModel> Products;
+        public readonly IMongoCollection<Credential> Credentials;
+        public readonly IMongoCollection<Session> Sessions;
+        public readonly IMongoCollection<User> Users;
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        public Context()
         {
-            modelBuilder.Entity<ProductModel>().Property(p => p.ProductId).ValueGeneratedOnAdd();
-            modelBuilder.Entity<User>().Property(u => u.Id).ValueGeneratedOnAdd();
-            modelBuilder.Entity<Credential>().Property(c => c.Id).ValueGeneratedOnAdd();
+            var mongo = new MongoClient("mongodb://localhost");
+            var db = mongo.GetDatabase(nameof(Context));
+            Products = db.GetCollection<ProductModel>(nameof(Products));
+            Credentials = db.GetCollection<Credential>(nameof(Credentials));
+            Sessions = db.GetCollection<Session>(nameof(Sessions));
+            Users = db.GetCollection<User>(nameof(Users));
         }
     }
 }
