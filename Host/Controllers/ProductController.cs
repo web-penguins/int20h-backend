@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -41,7 +42,9 @@ namespace Host.Controllers
                 Name = model.Name,
                 Description = model.Description,
                 Inputs = model.Inputs,
-                UserId = userId
+                UserId = userId,
+                Outputs = model.Outputs,
+                ProductId = Convert.ToInt32(_context.Products.CountDocuments(FilterDefinition<ProductModel>.Empty)) + 1
             };
             await _context.Products.InsertOneAsync(product);
             

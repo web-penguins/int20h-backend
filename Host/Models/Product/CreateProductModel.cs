@@ -13,5 +13,8 @@ namespace Host.Models.Product
         
         [Required]
         public List<Input> Inputs { get; set; }
+        
+        [Required]
+        public List<Output> Outputs { get; set; }
     }
 }
